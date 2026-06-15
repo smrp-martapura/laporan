@@ -437,7 +437,7 @@
         
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'mkt-kasir-cache-v7';
+                const CACHE_NAME = 'mkt-kasir-cache-v8';
                 self.addEventListener('install', e => {
                     e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
                 });
@@ -535,7 +535,6 @@
         const actualVal = parseInt(row.querySelector('.actual-k').value) || 0;
         const cellHutang = row.querySelector('.text-hutang');
         
-        // Logika penentu sisa hutang: Jika actual melebihi target, paksa hasil jadi 0 (Lunas) tanpa tanda centang.
         let hitungSisa = targetVal - actualVal;
         if (hitungSisa < 0) {
             hitungSisa = 0;
@@ -679,7 +678,6 @@
         setTimeout(() => { notif.style.display = 'none'; }, 3500);
     }
 
-    UX-friendly reset history
     function hapusRiwayat(jenis) {
         if(confirm(`Hapus semua data riwayat ${jenis.toUpperCase()}?`)) {
             localStorage.removeItem(`riwayat_${jenis}`);
