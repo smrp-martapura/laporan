@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Laporan Fokus MKT - V3 History</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #cbd5e1;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-main);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-background);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        h1 { font-size: 20px; margin-bottom: 20px; }
+        h2 { font-size: 16px; margin: 30px 0 15px 0; text-align: left; color: var(--text-main); }
+
+        .form-group { margin-bottom: 12px; }
+
+        .form-inline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background-color: #ffffff;
+        }
+
+        input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .input-table {
+            width: 75px;
+            padding: 8px 5px;
+            text-align: center;
+        }
+
+        .percentage-cell {
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .btn-copy {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            display: block;
+        }
+
+        .btn-copy:hover { background-color: #059669; }
+
+        .alert-success {
+            display: none;
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* History Table Styling */
+        .history-table th {
+            background-color: #475569;
+        }
+        .history-table td {
+            font-size: 13px;
+        }
+        .btn-clear {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+            margin-top: -35px;
+        }
+        .btn-clear:hover { background-color: #dc2626; }
+        .timestamp { color: #64748b; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Input Laporan Fokus MKT</h1>
+    
+    <div class="form-inline">
+        <div class="form-group">
+            <label>Toko</label>
+            <input type="text" id="toko" value="Simpang Martapura 1GCX">
+        </div>
+        <div class="form-group">
+            <label>Nama</label>
+            <input type="text" id="nama" value="Mudza">
+        </div>
+        <div class="form-group">
+            <label>NIK</label>
+            <input type="text" id="nik" value="26014513">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th style="width: 90px; text-align: center;">Target</th>
+                    <th style="width: 90px; text-align: center;">Actual</th>
+                    <th style="text-align: center;">Persen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="item-row" data-name="PSM">
+                    <td><strong>PSM</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="24" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="13" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen" style="color: #f59e0b;">54%</td>
+                </tr>
+                <tr class="item-row" data-name="PWP">
+                    <td><strong>PWP</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="12" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="8" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen" style="color: #10b981;">66%</td>
+                </tr>
+                <tr class="item-row" data-name="Serba">
+                    <td><strong>Serba</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="7" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="3" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen" style="color: #ef4444;">42%</td>
+                </tr>
+                <tr class="item-row" data-name="Suueger">
+                    <td><strong>Suueger</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="10" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="6" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen" style="color: #10b981;">60%</td>
+                </tr>
+                <tr class="item-row" data-name="Cashback">
+                    <td><strong>Cashback</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="" placeholder="-" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="" placeholder="-" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen">-</td>
+                </tr>
+                <tr class="item-row" data-name="Voucher">
+                    <td><strong>Voucher</strong></td>
+                    <td style="text-align: center;"><input type="number" class="input-table target" value="" placeholder="-" oninput="hitungPersen(this)"></td>
+                    <td style="text-align: center;"><input type="number" class="input-table actual" value="" placeholder="-" oninput="hitungPersen(this)"></td>
+                    <td class="percentage-cell text-persen">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-copy" onclick="copyLaporan()">Salin Format Laporan</button>
+        <div class="alert-success" id="notif">✓ Laporan Berhasil Disalin & Riwayat Tersimpan!</div>
+    </div>
+
+    <h2>Riwayat Laporan Actual</h2>
+    <button class="btn-clear" onclick="hapusRiwayat()">Hapus Semua</button>
+    
+    <div class="table-container">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Waktu / Toko / Nama</th>
+                    <th style="text-align: center;">PSM</th>
+                    <th style="text-align: center;">PWP</th>
+                    <th style="text-align: center;">Serba</th>
+                    <th style="text-align: center;">Suueger</th>
+                </tr>
+            </thead>
+            <tbody id="historyBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Jalankan pemuatan data riwayat saat website pertama dibuka
+    document.addEventListener("DOMContentLoaded", tampilkanRiwayat);
+
+    function hitungPersen(input) {
+        const row = input.closest('.item-row');
+        const targetVal = parseFloat(row.querySelector('.target').value);
+        const actualVal = parseFloat(row.querySelector('.actual').value);
+        const cellPersen = row.querySelector('.text-persen');
+
+        if (!isNaN(targetVal) && !isNaN(actualVal) && targetVal > 0) {
+            const hasil = Math.round((actualVal / targetVal) * 100);
+            cellPersen.innerText = hasil + "%";
+            
+            if(hasil >= 60) cellPersen.style.color = "#10b981";
+            else if(hasil >= 50) cellPersen.style.color = "#f59e0b";
+            else cellPersen.style.color = "#ef4444";
+        } else {
+            cellPersen.innerText = "-";
+            cellPersen.style.color = "var(--text-main)";
+        }
+    }
+
+    function generateTeksLaporan() {
+        const toko = document.getElementById('toko').value;
+        const nama = document.getElementById('nama').value;
+        const nik = document.getElementById('nik').value;
+
+        let teksLaporan = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${nik}\n\n`;
+
+        const rows = document.querySelectorAll('.item-row');
+        rows.forEach(row => {
+            const itemName = row.getAttribute('data-name');
+            const target = row.querySelector('.target').value;
+            const actual = row.querySelector('.actual').value;
+            const persen = row.querySelector('.text-persen').innerText;
+
+            if(target === "" && actual === "") {
+                teksLaporan += `${itemName} :\n`;
+            } else {
+                teksLaporan += `${itemName} : ${target || 0}/${actual || 0}/${percent_formatting(persen)}`;
+            }
+        });
+
+        teksLaporan += `\nTerima Kasih`;
+        return teksLaporan;
+    }
+
+    function percent_formatting(p) { return p.includes('%') ? p : p + '%'; }
+
+    function copyLaporan() {
+        const toko = document.getElementById('toko').value;
+        const nama = document.getElementById('nama').value;
+        
+        let teksHasil = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${document.getElementById('nik').value}\n\n`;
+        
+        // Simpan objek data untuk log riwayat
+        let dataLog = {
+            toko: toko,
+            nama: nama,
+            waktu: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+            items: {}
+        };
+
+        const rows = document.querySelectorAll('.item-row');
+        rows.forEach(row => {
+            const itemName = row.getAttribute('data-name');
+            const target = row.querySelector('.target').value;
+            const actual = row.querySelector('.actual').value;
+            const persen = row.querySelector('.text-persen').innerText;
+
+            if(target === "" && actual === "") {
+                teksHasil += `${itemName} :\n`;
+                dataLog.items[itemName] = "-";
+            } else {
+                teksHasil += `${itemName} : ${target || 0}/${actual || 0}/${persen}\n`;
+                dataLog.items[itemName] = `${target || 0}/${actual || 0} (${persen})`;
+            }
+        });
+
+        teksHasil += `\nTerima Kasih`;
+
+        // Proses Salin ke Clipboard (Akan lancar jika sudah di github.io)
+        navigator.clipboard.writeText(teksHasil).then(() => {
+            simpanKeHistory(dataLog);
+            tampilkanNotifikasiSukses();
+        }).catch(err => {
+            // Backup jika clipboard gagal sebelum dideploy ke github.io
+            simpanKeHistory(dataLog);
+            alert("Laporan tercatat di History bawah! (Fitur Salin Otomatis aktif setelah di-deploy ke GitHub)");
+        });
+    }
+
+    function tampilkanNotifikasiSukses() {
+        const notif = document.getElementById('notif');
+        notif.style.display = 'block';
+        setTimeout(() => { notif.style.display = 'none'; }, 3000);
+    }
+
+    // FUNGSI ENGINE HISTORY (LOCAL STORAGE)
+    function simpanKeHistory(logBaru) {
+        let listRiwayat = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
+        listRiwayat.unshift(logBaru); // Tambah data baru di urutan paling atas
+        localStorage.setItem("riwayat_mkt", JSON.stringify(listRiwayat));
+        tampilkanRiwayat();
+    }
+
+    function tampilkanRiwayat() {
+        let listRiwayat = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
+        const tbody = document.getElementById("historyBody");
+        tbody.innerHTML = "";
+
+        if(listRiwayat.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada riwayat laporan yang dibuat.</td></tr>`;
+            return;
+        }
+
+        listRiwayat.forEach(log => {
+            let tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>
+                    <span class="timestamp">${log.waktu}</span><br>
+                    <strong>${log.toko}</strong><br>
+                    <small>${log.nama}</small>
+                </td>
+                <td style="text-align: center;">${log.items["PSM"] || '-'}</td>
+                <td style="text-align: center;">${log.items["PWP"] || '-'}</td>
+                <td style="text-align: center;">${log.items["Serba"] || '-'}</td>
+                <td style="text-align: center;">${log.items["Suueger"] || '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function hapusRiwayat() {
+        if(confirm("Apakah Anda yakin ingin menghapus semua riwayat laporan?")) {
+            localStorage.removeItem("riwayat_mkt");
+            tampilkanRiwayat();
+        }
+    }
+</script>
+
+</body>
+</html>
