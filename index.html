@@ -195,6 +195,21 @@
             margin-top: -40px;
         }
         .btn-clear:hover { background-color: #dc2626; }
+        
+        .btn-reset-form {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+            margin-top: -48px;
+            margin-right: 10px;
+        }
+        .btn-reset-form:hover { background-color: #475569; }
+        
         .timestamp { color: #64748b; font-size: 11px; }
 
         .install-banner {
@@ -313,27 +328,28 @@
 <!-- ================= MODUL 2: LAPORAN KASIR FOKUS PSM ================= -->
 <div class="container">
     <h1 style="color: var(--accent-color); border-bottom-color: #ccfbf1;">Input Laporan Kasir Fokus PSM</h1>
+    <button class="btn-reset-form" onclick="resetFormKasir()">Kosongkan Tabel</button>
     
     <div class="form-inline" style="background: #f0fdfa;">
         <div class="form-group">
             <label>Week</label>
-            <input type="text" id="kasirWeek" value="24">
+            <input type="text" id="kasirWeek" value="24" oninput="autoSaveTabelKasir()">
         </div>
         <div class="form-group">
             <label>Tanggal</label>
-            <input type="date" id="kasirTanggal">
+            <input type="date" id="kasirTanggal" oninput="autoSaveTabelKasir()">
         </div>
         <div class="form-group">
             <label>Toko</label>
-            <input type="text" id="kasirToko" value="Simpang Martapura 1GCX">
+            <input type="text" id="kasirToko" value="Simpang Martapura 1GCX" oninput="autoSaveTabelKasir()">
         </div>
         <div class="form-group">
             <label>Nama Kasir</label>
-            <input type="text" id="kasirNama" value="Mudza">
+            <input type="text" id="kasirNama" value="Mudza" oninput="autoSaveTabelKasir()">
         </div>
         <div class="form-group">
             <label>NIK Kasir</label>
-            <input type="text" id="kasirNik" value="26014513">
+            <input type="text" id="kasirNik" value="26014513" oninput="autoSaveTabelKasir()">
         </div>
     </div>
 
@@ -348,14 +364,14 @@
                 </tr>
             </thead>
             <tbody id="kasirTableBody">
-                <!-- Generator 8 Baris Deskripsi Kasir -->
+                <!-- Loop 8 baris input -->
                 <script>
                     for (let i = 1; i <= 8; i++) {
                         document.write(`
-                            <tr class="kasir-row">
-                                <td><input type="text" class="input-deskripsi deskripsi" placeholder="Deskripsi Item ${i}"></td>
-                                <td style="text-align: center;"><input type="number" class="input-table target-k" value="" placeholder="0" oninput="hitungHutang(this)"></td>
-                                <td style="text-align: center;"><input type="number" class="input-table actual-k" value="" placeholder="0" oninput="hitungHutang(this)"></td>
+                            <tr class="kasir-row" data-index="${i}">
+                                <td><input type="text" class="input-deskripsi deskripsi" placeholder="Deskripsi Item ${i}" oninput="jalankanUbahKasir(this)"></td>
+                                <td style="text-align: center;"><input type="number" class="input-table target-k" value="" placeholder="0" oninput="jalankanUbahKasir(this)"></td>
+                                <td style="text-align: center;"><input type="number" class="input-table actual-k" value="" placeholder="0" oninput="jalankanUbahKasir(this)"></td>
                                 <td class="debt-cell text-hutang">0</td>
                             </tr>
                         `);
@@ -412,9 +428,12 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Otomatis set input tanggal Kasir ke hari ini
+        // Default Set Tanggal Hari Ini jika belum ada memori tersimpan
         const hariIni = new Date().toISOString().split('T')[0];
         document.getElementById('kasirTanggal').value = hariIni;
+        
+        // Ambil data cache memori form Kasir jika ada
+        muatDataCacheKasir();
         
         tampilkanRiwayatMKT();
         tampilkanRiwayatKasir();
@@ -422,7 +441,7 @@
         // Inline PWA Service Worker
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'mkt-kasir-cache-v5';
+                const CACHE_NAME = 'mkt-kasir-cache-v6';
                 self.addEventListener('install', e => {
                     e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
                 });
@@ -509,15 +528,76 @@
         });
     }
 
-    // --- LOGIKA ENGINE MODUL 2 (KASIR PSM) ---
-    function hitungHutang(input) {
-        const row = input.closest('.kasir-row');
+    // --- LOGIKA ENGINE MODUL 2 (KASIR PSM) dengan Auto-Save ---
+    function jalankanUbahKasir(input) {
+        hitungHutangBaris(input.closest('.kasir-row'));
+        autoSaveTabelKasir();
+    }
+
+    function hitungHutangBaris(row) {
         const targetVal = parseInt(row.querySelector('.target-k').value) || 0;
         const actualVal = parseInt(row.querySelector('.actual-k').value) || 0;
         const cellHutang = row.querySelector('.text-hutang');
-        
-        // Sisa Hutang = Target - Actual
         cellHutang.innerText = targetVal - actualVal;
+    }
+
+    // Fungsi menyimpan isi Form & Tabel Kasir otomatis ke browser
+    function autoSaveTabelKasir() {
+        let dataTokoKasir = {
+            week: document.getElementById('kasirWeek').value,
+            tanggal: document.getElementById('kasirTanggal').value,
+            toko: document.getElementById('kasirToko').value,
+            nama: document.getElementById('kasirNama').value,
+            nik: document.getElementById('kasirNik').value,
+            rows: []
+        };
+
+        document.querySelectorAll('.kasir-row').forEach(row => {
+            dataTokoKasir.rows.push({
+                deskripsi: row.querySelector('.deskripsi').value,
+                target: row.querySelector('.target-k').value,
+                actual: row.querySelector('.actual-k').value
+            });
+        });
+
+        localStorage.setItem("cache_form_kasir", JSON.stringify(dataTokoKasir));
+    }
+
+    // Fungsi memuat data yang pernah diisi sebelumnya
+    function muatDataCacheKasir() {
+        let cache = JSON.parse(localStorage.getItem("cache_form_kasir"));
+        if (!cache) return;
+
+        if (cache.week !== undefined) document.getElementById('kasirWeek').value = cache.week;
+        if (cache.tanggal !== undefined) document.getElementById('kasirTanggal').value = cache.tanggal;
+        if (cache.toko !== undefined) document.getElementById('kasirToko').value = cache.toko;
+        if (cache.nama !== undefined) document.getElementById('kasirNama').value = cache.nama;
+        if (cache.nik !== undefined) document.getElementById('kasirNik').value = cache.nik;
+
+        if (cache.rows && cache.rows.length > 0) {
+            const rowsDOM = document.querySelectorAll('.kasir-row');
+            cache.rows.forEach((rowData, index) => {
+                if (rowsDOM[index]) {
+                    rowsDOM[index].querySelector('.deskripsi').value = rowData.deskripsi || "";
+                    rowsDOM[index].querySelector('.target-k').value = rowData.target || "";
+                    rowsDOM[index].querySelector('.actual-k').value = rowData.actual || "";
+                    hitungHutangBaris(rowsDOM[index]);
+                }
+            });
+        }
+    }
+
+    // Fungsi tombol bantu jika ingin mengosongkan semua isian tabel kasir
+    function resetFormKasir() {
+        if(confirm("Kosongkan semua isi deskripsi, target, dan actual di tabel kasir?")) {
+            document.querySelectorAll('.kasir-row').forEach(row => {
+                row.querySelector('.deskripsi').value = "";
+                row.querySelector('.target-k').value = "";
+                row.querySelector('.actual-k').value = "";
+                row.querySelector('.text-hutang').innerText = "0";
+            });
+            autoSaveTabelKasir();
+        }
     }
 
     function copyLaporanKasir() {
@@ -527,7 +607,6 @@
         const nama = document.getElementById('kasirNama').value;
         const nik = document.getElementById('kasirNik').value;
 
-        // Memformat tampilan tanggal Indonesia (DD-MM-YYYY)
         let tglFormatted = tglInput;
         if(tglInput) {
             const parts = tglInput.split('-');
@@ -560,7 +639,6 @@
             }
         });
 
-        // Jika form kosong, buat default format kosong sesuai instruksi user
         if(barisTerisi === 0) {
             for(let i=0; i<8; i++) teksHasil += `Deskripsi : ../../..\n`;
         }
