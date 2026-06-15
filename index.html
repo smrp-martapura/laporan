@@ -428,20 +428,16 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Default Set Tanggal Hari Ini jika belum ada memori tersimpan
         const hariIni = new Date().toISOString().split('T')[0];
         document.getElementById('kasirTanggal').value = hariIni;
         
-        // Ambil data cache memori form Kasir jika ada
         muatDataCacheKasir();
-        
         tampilkanRiwayatMKT();
         tampilkanRiwayatKasir();
         
-        // Inline PWA Service Worker
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'mkt-kasir-cache-v6';
+                const CACHE_NAME = 'mkt-kasir-cache-v7';
                 self.addEventListener('install', e => {
                     e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
                 });
@@ -528,7 +524,7 @@
         });
     }
 
-    // --- LOGIKA ENGINE MODUL 2 (KASIR PSM) dengan Auto-Save ---
+    // --- LOGIKA ENGINE MODUL 2 (KASIR PSM) ---
     function jalankanUbahKasir(input) {
         hitungHutangBaris(input.closest('.kasir-row'));
         autoSaveTabelKasir();
@@ -538,10 +534,16 @@
         const targetVal = parseInt(row.querySelector('.target-k').value) || 0;
         const actualVal = parseInt(row.querySelector('.actual-k').value) || 0;
         const cellHutang = row.querySelector('.text-hutang');
-        cellHutang.innerText = targetVal - actualVal;
+        
+        // Logika penentu sisa hutang: Jika actual melebihi target, paksa hasil jadi 0 (Lunas) tanpa tanda centang.
+        let hitungSisa = targetVal - actualVal;
+        if (hitungSisa < 0) {
+            hitungSisa = 0;
+        }
+        
+        cellHutang.innerText = hitungSisa;
     }
 
-    // Fungsi menyimpan isi Form & Tabel Kasir otomatis ke browser
     function autoSaveTabelKasir() {
         let dataTokoKasir = {
             week: document.getElementById('kasirWeek').value,
@@ -563,7 +565,6 @@
         localStorage.setItem("cache_form_kasir", JSON.stringify(dataTokoKasir));
     }
 
-    // Fungsi memuat data yang pernah diisi sebelumnya
     function muatDataCacheKasir() {
         let cache = JSON.parse(localStorage.getItem("cache_form_kasir"));
         if (!cache) return;
@@ -587,7 +588,6 @@
         }
     }
 
-    // Fungsi tombol bantu jika ingin mengosongkan semua isian tabel kasir
     function resetFormKasir() {
         if(confirm("Kosongkan semua isi deskripsi, target, dan actual di tabel kasir?")) {
             document.querySelectorAll('.kasir-row').forEach(row => {
@@ -672,13 +672,14 @@
         });
     }
 
-    // --- FITUR GLOBAL (INSTALASI PWA & PEMBERSIH) ---
+    // --- FITUR GLOBAL ---
     function notifikasiSukses(idNotif) {
         const notif = document.getElementById(idNotif);
         notif.style.display = 'block';
         setTimeout(() => { notif.style.display = 'none'; }, 3500);
     }
 
+    UX-friendly reset history
     function hapusRiwayat(jenis) {
         if(confirm(`Hapus semua data riwayat ${jenis.toUpperCase()}?`)) {
             localStorage.removeItem(`riwayat_${jenis}`);
@@ -687,7 +688,6 @@
         }
     }
 
-    // Logika Tombol Instal PWA App
     let deferredPrompt;
     const installBanner = document.getElementById('installBanner');
     const btnInstallApp = document.getElementById('btnInstallApp');
