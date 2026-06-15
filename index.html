@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Laporan Fokus MKT - All-in-One PWA</title>
+    <title>Generator Laporan MKT & Kasir - All-in-One PWA</title>
     
-    <!-- PWA Manifest via Data URL (Satu File) -->
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Laporan%20Fokus%20MKT%22,%22short_name%22:%22MKT%20Report%22,%22start_url%22:%22.%2Findex.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%231e3a8a%22,%22theme_color%22:%22%231e3a8a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22https:%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3135%2F3135706.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image%2png%22,%22purpose%22:%22any%20maskable%22}]}">
+    <!-- PWA Manifest via Data URL -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Laporan%20Fokus%20Toko%22,%22short_name%22:%22Toko%20Report%22,%22start_url%22:%22.%2Findex.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%231e3a8a%22,%22theme_color%22:%22%231e3a8a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22https:%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3135%2F3135706.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image%2png%22,%22purpose%22:%22any%20maskable%22}]}">
     
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,7 +17,8 @@
         :root {
             --primary-color: #1e3a8a;
             --secondary-color: #3b82f6;
-            --background-color: #f8fafc;
+            --accent-color: #0f766e;
+            --background-color: #f1f5f9;
             --card-background: #ffffff;
             --text-main: #1e293b;
             --border-color: #cbd5e1;
@@ -48,6 +49,7 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            margin-bottom: 25px;
         }
 
         h1, h2 {
@@ -56,21 +58,23 @@
             text-align: center;
             border-bottom: 2px solid #e2e8f0;
             padding-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        h1 { font-size: 20px; margin-bottom: 20px; }
-        h2 { font-size: 16px; margin: 30px 0 15px 0; text-align: left; color: var(--text-main); }
+        h1 { font-size: 20px; }
+        h2 { font-size: 16px; margin-top: 15px; text-align: left; color: #475569; }
 
         .form-group { margin-bottom: 12px; }
 
         .form-inline {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
-            background: #f1f5f9;
+            background: #f8fafc;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
 
         label {
@@ -78,10 +82,10 @@
             font-size: 13px;
             font-weight: 600;
             margin-bottom: 5px;
-            color: var(--primary-color);
+            color: var(--text-main);
         }
 
-        input[type="text"], input[type="number"] {
+        input[type="text"], input[type="number"], input[type="date"] {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid var(--border-color);
@@ -114,6 +118,10 @@
             text-transform: uppercase;
         }
 
+        .th-kasir {
+            background-color: var(--accent-color);
+        }
+
         td {
             padding: 10px 8px;
             border-bottom: 1px solid #e2e8f0;
@@ -126,11 +134,20 @@
             text-align: center;
         }
 
-        .percentage-cell {
+        .input-deskripsi {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .percentage-cell, .debt-cell {
             font-weight: bold;
             text-align: center;
             font-size: 14px;
         }
+
+        .debt-cell { color: #b91c1c; }
 
         .btn-copy {
             background-color: var(--success);
@@ -145,7 +162,11 @@
             display: block;
         }
 
-        .btn-copy:hover { background-color: #059669; }
+        .btn-copy-kasir {
+            background-color: var(--accent-color);
+        }
+
+        .btn-copy:hover { opacity: 0.9; }
 
         .alert-success {
             display: none;
@@ -160,7 +181,7 @@
         }
 
         .history-table th { background-color: #475569; }
-        .history-table td { font-size: 13px; }
+        .history-table td { font-size: 12px; }
         
         .btn-clear {
             background-color: #ef4444;
@@ -171,12 +192,11 @@
             border-radius: 4px;
             cursor: pointer;
             float: right;
-            margin-top: -35px;
+            margin-top: -40px;
         }
         .btn-clear:hover { background-color: #dc2626; }
         .timestamp { color: #64748b; font-size: 11px; }
 
-        /* Banner Instalasi */
         .install-banner {
             display: none;
             width: 100%;
@@ -198,27 +218,32 @@
             border-radius: 6px;
             cursor: pointer;
         }
+        .divider {
+            height: 2px;
+            background: #cbd5e1;
+            margin: 40px 0;
+        }
     </style>
 </head>
 <body>
 
-<!-- Banner Ajakan Instal -->
+<!-- Banner PWA Install -->
 <div class="install-banner" id="installBanner">
     <span style="font-size: 14px; font-weight: 500; color: #1e40af;">Gunakan lebih mudah, instal sebagai Aplikasi Toko!</span>
     <button class="btn-install" id="btnInstallApp">Instal</button>
 </div>
 
+<!-- ================= MODUL 1: LAPORAN FOKUS MKT ================= -->
 <div class="container">
     <h1>Input Laporan Fokus MKT</h1>
     
-    <!-- Profil Toko -->
     <div class="form-inline">
         <div class="form-group">
             <label>Toko</label>
             <input type="text" id="toko" value="Simpang Martapura 1GCX">
         </div>
         <div class="form-group">
-            <label>Nama</label>
+            <label>Nama Personil</label>
             <input type="text" id="nama" value="Mudza">
         </div>
         <div class="form-group">
@@ -227,7 +252,6 @@
         </div>
     </div>
 
-    <!-- Tabel Data Penjualan -->
     <div class="table-container">
         <table>
             <thead>
@@ -239,37 +263,37 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="item-row" data-name="PSM">
+                <tr class="mkt-row" data-name="PSM">
                     <td><strong>PSM</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="24" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="13" oninput="hitungPersen(this)"></td>
                     <td class="percentage-cell text-persen" style="color: #f59e0b;">54%</td>
                 </tr>
-                <tr class="item-row" data-name="PWP">
+                <tr class="mkt-row" data-name="PWP">
                     <td><strong>PWP</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="12" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="8" oninput="hitungPersen(this)"></td>
                     <td class="percentage-cell text-persen" style="color: #10b981;">66%</td>
                 </tr>
-                <tr class="item-row" data-name="Serba">
+                <tr class="mkt-row" data-name="Serba">
                     <td><strong>Serba</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="7" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="3" oninput="hitungPersen(this)"></td>
                     <td class="percentage-cell text-persen" style="color: #ef4444;">42%</td>
                 </tr>
-                <tr class="item-row" data-name="Suueger">
+                <tr class="mkt-row" data-name="Suueger">
                     <td><strong>Suueger</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="10" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="6" oninput="hitungPersen(this)"></td>
                     <td class="percentage-cell text-persen" style="color: #10b981;">60%</td>
                 </tr>
-                <tr class="item-row" data-name="Cashback">
+                <tr class="mkt-row" data-name="Cashback">
                     <td><strong>Cashback</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="" placeholder="-" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="" placeholder="-" oninput="hitungPersen(this)"></td>
                     <td class="percentage-cell text-persen">-</td>
                 </tr>
-                <tr class="item-row" data-name="Voucher">
+                <tr class="mkt-row" data-name="Voucher">
                     <td><strong>Voucher</strong></td>
                     <td style="text-align: center;"><input type="number" class="input-table target" value="" placeholder="-" oninput="hitungPersen(this)"></td>
                     <td style="text-align: center;"><input type="number" class="input-table actual" value="" placeholder="-" oninput="hitungPersen(this)"></td>
@@ -279,40 +303,126 @@
         </table>
     </div>
 
-    <!-- Tombol Copy -->
     <div class="btn-container">
-        <button class="btn-copy" onclick="copyLaporan()">Salin Format Laporan</button>
-        <div class="alert-success" id="notif">✓ Laporan Berhasil Disalin & Riwayat Tersimpan!</div>
+        <button class="btn-copy" onclick="copyLaporanMKT()">Salin Format Laporan MKT</button>
+        <div class="alert-success" id="notifMkt">✓ Laporan MKT Berhasil Disalin & Riwayat Tersimpan!</div>
+    </div>
+</div>
+
+
+<!-- ================= MODUL 2: LAPORAN KASIR FOKUS PSM ================= -->
+<div class="container">
+    <h1 style="color: var(--accent-color); border-bottom-color: #ccfbf1;">Input Laporan Kasir Fokus PSM</h1>
+    
+    <div class="form-inline" style="background: #f0fdfa;">
+        <div class="form-group">
+            <label>Week</label>
+            <input type="text" id="kasirWeek" value="24">
+        </div>
+        <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" id="kasirTanggal">
+        </div>
+        <div class="form-group">
+            <label>Toko</label>
+            <input type="text" id="kasirToko" value="Simpang Martapura 1GCX">
+        </div>
+        <div class="form-group">
+            <label>Nama Kasir</label>
+            <input type="text" id="kasirNama" value="Mudza">
+        </div>
+        <div class="form-group">
+            <label>NIK Kasir</label>
+            <input type="text" id="kasirNik" value="26014513">
+        </div>
     </div>
 
-    <!-- SEKSI HISTORY LOG -->
-    <h2>Riwayat Laporan Actual</h2>
-    <button class="btn-clear" onclick="hapusRiwayat()">Hapus Semua</button>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="th-kasir">Deskripsi Item</th>
+                    <th class="th-kasir" style="width: 85px; text-align: center;">Target</th>
+                    <th class="th-kasir" style="width: 85px; text-align: center;">Actual</th>
+                    <th class="th-kasir" style="width: 100px; text-align: center;">Sisa Hutang</th>
+                </tr>
+            </thead>
+            <tbody id="kasirTableBody">
+                <!-- Generator 8 Baris Deskripsi Kasir -->
+                <script>
+                    for (let i = 1; i <= 8; i++) {
+                        document.write(`
+                            <tr class="kasir-row">
+                                <td><input type="text" class="input-deskripsi deskripsi" placeholder="Deskripsi Item ${i}"></td>
+                                <td style="text-align: center;"><input type="number" class="input-table target-k" value="" placeholder="0" oninput="hitungHutang(this)"></td>
+                                <td style="text-align: center;"><input type="number" class="input-table actual-k" value="" placeholder="0" oninput="hitungHutang(this)"></td>
+                                <td class="debt-cell text-hutang">0</td>
+                            </tr>
+                        `);
+                    }
+                </script>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-copy btn-copy-kasir" onclick="copyLaporanKasir()">Salin Format Laporan Kasir</button>
+        <div class="alert-success" id="notifKasir">✓ Laporan Kasir Berhasil Disalin & Riwayat Tersimpan!</div>
+    </div>
+</div>
+
+
+<!-- ================= SEKSI SUMMARY HISTORY LOGS ================= -->
+<div class="container" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+    <h1 style="font-size: 18px; color: #475569; border-bottom: 2px solid #cbd5e1;">Riwayat Penyimpanan Dokumen</h1>
     
+    <h2>Riwayat Laporan MKT</h2>
+    <button class="btn-clear" onclick="hapusRiwayat('mkt')">Hapus MKT</button>
     <div class="table-container">
         <table class="history-table">
             <thead>
                 <tr>
-                    <th>Waktu / Toko / Nama</th>
+                    <th>Waktu / Profil</th>
                     <th style="text-align: center;">PSM</th>
                     <th style="text-align: center;">PWP</th>
                     <th style="text-align: center;">Serba</th>
                     <th style="text-align: center;">Suueger</th>
                 </tr>
             </thead>
-            <tbody id="historyBody"></tbody>
+            <tbody id="historyMktBody"></tbody>
+        </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Riwayat Laporan Kasir PSM</h2>
+    <button class="btn-clear" onclick="hapusRiwayat('kasir')">Hapus Kasir</button>
+    <div class="table-container">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Waktu / Profil / Week</th>
+                    <th>Detail Item Terjual (Deskripsi: Target/Actual/Sisa)</th>
+                </tr>
+            </thead>
+            <tbody id="historyKasirBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        tampilkanRiwayat();
+        // Otomatis set input tanggal Kasir ke hari ini
+        const hariIni = new Date().toISOString().split('T')[0];
+        document.getElementById('kasirTanggal').value = hariIni;
         
-        // Inline Service Worker dengan Metode Blob URL (Satu File)
+        tampilkanRiwayatMKT();
+        tampilkanRiwayatKasir();
+        
+        // Inline PWA Service Worker
         if ('serviceWorker' in navigator) {
             const swCode = `
-                const CACHE_NAME = 'mkt-pwa-cache-v4';
+                const CACHE_NAME = 'mkt-kasir-cache-v5';
                 self.addEventListener('install', e => {
                     e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
                 });
@@ -321,35 +431,13 @@
                 });
             `;
             const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl, { scope: './' }).catch(err => console.log('SW Load Gagal:', err));
+            navigator.serviceWorker.register(URL.createObjectURL(blob), { scope: './' }).catch(() => {});
         }
     });
 
-    // Logika Tombol Instal
-    let deferredPrompt;
-    const installBanner = document.getElementById('installBanner');
-    const btnInstallApp = document.getElementById('btnInstallApp');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBanner.style.display = 'flex';
-    });
-
-    btnInstallApp.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBanner.style.display = 'none';
-            }
-            deferredPrompt = null;
-        }
-    });
-
+    // --- LOGIKA ENGINE MODUL 1 (MKT) ---
     function hitungPersen(input) {
-        const row = input.closest('.item-row');
+        const row = input.closest('.mkt-row');
         const targetVal = parseFloat(row.querySelector('.target').value);
         const actualVal = parseFloat(row.querySelector('.actual').value);
         const cellPersen = row.querySelector('.text-persen');
@@ -366,20 +454,19 @@
         }
     }
 
-    function copyLaporan() {
+    function copyLaporanMKT() {
         const toko = document.getElementById('toko').value;
         const nama = document.getElementById('nama').value;
-        let teksHasil = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${document.getElementById('nik').value}\n\n`;
+        const nik = document.getElementById('nik').value;
+        let teksHasil = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${nik}\n\n`;
         
         let dataLog = {
-            toko: toko,
-            nama: nama,
+            toko: toko, nama: nama,
             waktu: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
             items: {}
         };
 
-        const rows = document.querySelectorAll('.item-row');
-        rows.forEach(row => {
+        document.querySelectorAll('.mkt-row').forEach(row => {
             const itemName = row.getAttribute('data-name');
             const target = row.querySelector('.target').value;
             const actual = row.querySelector('.actual').value;
@@ -393,42 +480,23 @@
                 dataLog.items[itemName] = `${target || 0}/${actual || 0} (${persen})`;
             }
         });
-
         teksHasil += `\nTerima Kasih`;
 
         navigator.clipboard.writeText(teksHasil).then(() => {
-            simpanKeHistory(dataLog);
-            tampilkanNotifikasiSukses();
-        }).catch(() => {
-            simpanKeHistory(dataLog);
-            alert("Laporan otomatis tersimpan di tabel history!");
-        });
+            let list = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
+            list.unshift(dataLog);
+            localStorage.setItem("riwayat_mkt", JSON.stringify(list));
+            tampilkanRiwayatMKT();
+            notifikasiSukses('notifMkt');
+        }).catch(() => { alert("Gagal menyalin! Gunakan koneksi HTTPS/GitHub Pages."); });
     }
 
-    function tampilkanNotifikasiSukses() {
-        const notif = document.getElementById('notif');
-        notif.style.display = 'block';
-        setTimeout(() => { notif.style.display = 'none'; }, 3000);
-    }
-
-    function simpanKeHistory(logBaru) {
-        let listRiwayat = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
-        listRiwayat.unshift(logBaru);
-        localStorage.setItem("riwayat_mkt", JSON.stringify(listRiwayat));
-        tampilkanRiwayat();
-    }
-
-    function tampilkanRiwayat() {
-        let listRiwayat = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
-        const tbody = document.getElementById("historyBody");
-        tbody.innerHTML = "";
-
-        if(listRiwayat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada riwayat laporan.</td></tr>`;
-            return;
-        }
-
-        listRiwayat.forEach(log => {
+    function tampilkanRiwayatMKT() {
+        let list = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
+        const tbody = document.getElementById("historyMktBody");
+        tbody.innerHTML = list.length === 0 ? `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada riwayat.</td></tr>` : "";
+        
+        list.forEach(log => {
             let tr = document.createElement("tr");
             tr.innerHTML = `
                 <td><span class="timestamp">${log.waktu}</span><br><strong>${log.toko}</strong><br><small>${log.nama}</small></td>
@@ -441,12 +509,126 @@
         });
     }
 
-    function hapusRiwayat() {
-        if(confirm("Hapus semua riwayat laporan?")) {
-            localStorage.removeItem("riwayat_mkt");
-            tampilkanRiwayat();
+    // --- LOGIKA ENGINE MODUL 2 (KASIR PSM) ---
+    function hitungHutang(input) {
+        const row = input.closest('.kasir-row');
+        const targetVal = parseInt(row.querySelector('.target-k').value) || 0;
+        const actualVal = parseInt(row.querySelector('.actual-k').value) || 0;
+        const cellHutang = row.querySelector('.text-hutang');
+        
+        // Sisa Hutang = Target - Actual
+        cellHutang.innerText = targetVal - actualVal;
+    }
+
+    function copyLaporanKasir() {
+        const week = document.getElementById('kasirWeek').value;
+        const tglInput = document.getElementById('kasirTanggal').value;
+        const toko = document.getElementById('kasirToko').value;
+        const nama = document.getElementById('kasirNama').value;
+        const nik = document.getElementById('kasirNik').value;
+
+        // Memformat tampilan tanggal Indonesia (DD-MM-YYYY)
+        let tglFormatted = tglInput;
+        if(tglInput) {
+            const parts = tglInput.split('-');
+            tglFormatted = `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        let teksHasil = `Laporan Kasir Fokus PSM\nWeek : ${week}\nTanggal : ${tglFormatted}\n\nNama : ${nama}\nNik : ${nik}\nToko : ${toko}\n\nFormat laporan : Item/Target/Actual/Sisa Hutang\n\n`;
+        
+        let dataLog = {
+            toko: toko, nama: nama, week: week,
+            waktu: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+            itemsArray: []
+        };
+
+        let barisTerisi = 0;
+        document.querySelectorAll('.kasir-row').forEach(row => {
+            const deskripsi = row.querySelector('.deskripsi').value.trim();
+            const target = row.querySelector('.target-k').value;
+            const actual = row.querySelector('.actual-k').value;
+            const hutang = row.querySelector('.text-hutang').innerText;
+
+            if (deskripsi !== "" || target !== "" || actual !== "") {
+                barisTerisi++;
+                const itemLabel = deskripsi || `Item Tanpa Nama`;
+                const t = target || 0;
+                const a = actual || 0;
+                
+                teksHasil += `${itemLabel} : ${t}/${a}/${hutang}\n`;
+                dataLog.itemsArray.push(`${itemLabel}: ${t}/${a}/[Sisa: ${hutang}]`);
+            }
+        });
+
+        // Jika form kosong, buat default format kosong sesuai instruksi user
+        if(barisTerisi === 0) {
+            for(let i=0; i<8; i++) teksHasil += `Deskripsi : ../../..\n`;
+        }
+
+        teksHasil += `\nTerimakasih`;
+
+        navigator.clipboard.writeText(teksHasil).then(() => {
+            if(barisTerisi > 0) {
+                let list = JSON.parse(localStorage.getItem("riwayat_kasir")) || [];
+                list.unshift(dataLog);
+                localStorage.setItem("riwayat_kasir", JSON.stringify(list));
+                tampilkanRiwayatKasir();
+            }
+            notifikasiSukses('notifKasir');
+        }).catch(() => { alert("Gagal menyalin! Gunakan koneksi HTTPS/GitHub Pages."); });
+    }
+
+    function tampilkanRiwayatKasir() {
+        let list = JSON.parse(localStorage.getItem("riwayat_kasir")) || [];
+        const tbody = document.getElementById("historyKasirBody");
+        tbody.innerHTML = list.length === 0 ? `<tr><td colspan="2" style="text-align:center; color:#94a3b8;">Belum ada riwayat kasir.</td></tr>` : "";
+        
+        list.forEach(log => {
+            let tr = document.createElement("tr");
+            let itemsHTML = log.itemsArray.map(item => `• ${item}`).join('<br>');
+            tr.innerHTML = `
+                <td><span class="timestamp">${log.waktu}</span><br><strong>${log.toko}</strong><br><small>Kasir: ${log.nama} (Wk ${log.week})</small></td>
+                <td style="line-height: 1.5; color: var(--accent-color);">${itemsHTML}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- FITUR GLOBAL (INSTALASI PWA & PEMBERSIH) ---
+    function notifikasiSukses(idNotif) {
+        const notif = document.getElementById(idNotif);
+        notif.style.display = 'block';
+        setTimeout(() => { notif.style.display = 'none'; }, 3500);
+    }
+
+    function hapusRiwayat(jenis) {
+        if(confirm(`Hapus semua data riwayat ${jenis.toUpperCase()}?`)) {
+            localStorage.removeItem(`riwayat_${jenis}`);
+            if(jenis === 'mkt') tampilkanRiwayatMKT();
+            else tampilkanRiwayatKasir();
         }
     }
+
+    // Logika Tombol Instal PWA App
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const btnInstallApp = document.getElementById('btnInstallApp');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'flex';
+    });
+
+    btnInstallApp.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') installBanner.style.display = 'none';
+            deferredPrompt = null;
+        }
+    });
 </script>
+
 </body>
 </html>
