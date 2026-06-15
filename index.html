@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Laporan Fokus MKT - V3 History</title>
+    <title>Generator Laporan Fokus MKT - All-in-One PWA</title>
+    
+    <!-- PWA Manifest via Data URL (Satu File) -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Laporan%20Fokus%20MKT%22,%22short_name%22:%22MKT%20Report%22,%22start_url%22:%22.%2Findex.html%22,%22display%22:%22standalone%22,%22background_color%22:%22%231e3a8a%22,%22theme_color%22:%22%231e3a8a%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22https:%2F%2Fcdn-icons-png.flaticon.com%2F512%2F3135%2F3135706.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image%2png%22,%22purpose%22:%22any%20maskable%22}]}">
+    
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135706.png">
+
     <style>
         :root {
             --primary-color: #1e3a8a;
@@ -28,6 +37,8 @@
             padding: 15px;
             display: flex;
             justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         .container {
@@ -148,13 +159,9 @@
             font-weight: bold;
         }
 
-        /* History Table Styling */
-        .history-table th {
-            background-color: #475569;
-        }
-        .history-table td {
-            font-size: 13px;
-        }
+        .history-table th { background-color: #475569; }
+        .history-table td { font-size: 13px; }
+        
         .btn-clear {
             background-color: #ef4444;
             color: white;
@@ -168,13 +175,43 @@
         }
         .btn-clear:hover { background-color: #dc2626; }
         .timestamp { color: #64748b; font-size: 11px; }
+
+        /* Banner Instalasi */
+        .install-banner {
+            display: none;
+            width: 100%;
+            max-width: 850px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-install {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
+<!-- Banner Ajakan Instal -->
+<div class="install-banner" id="installBanner">
+    <span style="font-size: 14px; font-weight: 500; color: #1e40af;">Gunakan lebih mudah, instal sebagai Aplikasi Toko!</span>
+    <button class="btn-install" id="btnInstallApp">Instal</button>
+</div>
+
 <div class="container">
     <h1>Input Laporan Fokus MKT</h1>
     
+    <!-- Profil Toko -->
     <div class="form-inline">
         <div class="form-group">
             <label>Toko</label>
@@ -190,6 +227,7 @@
         </div>
     </div>
 
+    <!-- Tabel Data Penjualan -->
     <div class="table-container">
         <table>
             <thead>
@@ -241,11 +279,13 @@
         </table>
     </div>
 
+    <!-- Tombol Copy -->
     <div class="btn-container">
         <button class="btn-copy" onclick="copyLaporan()">Salin Format Laporan</button>
         <div class="alert-success" id="notif">✓ Laporan Berhasil Disalin & Riwayat Tersimpan!</div>
     </div>
 
+    <!-- SEKSI HISTORY LOG -->
     <h2>Riwayat Laporan Actual</h2>
     <button class="btn-clear" onclick="hapusRiwayat()">Hapus Semua</button>
     
@@ -260,15 +300,53 @@
                     <th style="text-align: center;">Suueger</th>
                 </tr>
             </thead>
-            <tbody id="historyBody">
-                </tbody>
+            <tbody id="historyBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // Jalankan pemuatan data riwayat saat website pertama dibuka
-    document.addEventListener("DOMContentLoaded", tampilkanRiwayat);
+    document.addEventListener("DOMContentLoaded", () => {
+        tampilkanRiwayat();
+        
+        // Inline Service Worker dengan Metode Blob URL (Satu File)
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'mkt-pwa-cache-v4';
+                self.addEventListener('install', e => {
+                    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./', './index.html'])));
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+                });
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl, { scope: './' }).catch(err => console.log('SW Load Gagal:', err));
+        }
+    });
+
+    // Logika Tombol Instal
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const btnInstallApp = document.getElementById('btnInstallApp');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBanner.style.display = 'flex';
+    });
+
+    btnInstallApp.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBanner.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
 
     function hitungPersen(input) {
         const row = input.closest('.item-row');
@@ -279,7 +357,6 @@
         if (!isNaN(targetVal) && !isNaN(actualVal) && targetVal > 0) {
             const hasil = Math.round((actualVal / targetVal) * 100);
             cellPersen.innerText = hasil + "%";
-            
             if(hasil >= 60) cellPersen.style.color = "#10b981";
             else if(hasil >= 50) cellPersen.style.color = "#f59e0b";
             else cellPersen.style.color = "#ef4444";
@@ -289,40 +366,11 @@
         }
     }
 
-    function generateTeksLaporan() {
-        const toko = document.getElementById('toko').value;
-        const nama = document.getElementById('nama').value;
-        const nik = document.getElementById('nik').value;
-
-        let teksLaporan = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${nik}\n\n`;
-
-        const rows = document.querySelectorAll('.item-row');
-        rows.forEach(row => {
-            const itemName = row.getAttribute('data-name');
-            const target = row.querySelector('.target').value;
-            const actual = row.querySelector('.actual').value;
-            const persen = row.querySelector('.text-persen').innerText;
-
-            if(target === "" && actual === "") {
-                teksLaporan += `${itemName} :\n`;
-            } else {
-                teksLaporan += `${itemName} : ${target || 0}/${actual || 0}/${percent_formatting(persen)}`;
-            }
-        });
-
-        teksLaporan += `\nTerima Kasih`;
-        return teksLaporan;
-    }
-
-    function percent_formatting(p) { return p.includes('%') ? p : p + '%'; }
-
     function copyLaporan() {
         const toko = document.getElementById('toko').value;
         const nama = document.getElementById('nama').value;
-        
         let teksHasil = `Laporan fokus MKT dengan Format,,\n\nToko : ${toko}\nNama : ${nama}\nNik : ${document.getElementById('nik').value}\n\n`;
         
-        // Simpan objek data untuk log riwayat
         let dataLog = {
             toko: toko,
             nama: nama,
@@ -348,14 +396,12 @@
 
         teksHasil += `\nTerima Kasih`;
 
-        // Proses Salin ke Clipboard (Akan lancar jika sudah di github.io)
         navigator.clipboard.writeText(teksHasil).then(() => {
             simpanKeHistory(dataLog);
             tampilkanNotifikasiSukses();
-        }).catch(err => {
-            // Backup jika clipboard gagal sebelum dideploy ke github.io
+        }).catch(() => {
             simpanKeHistory(dataLog);
-            alert("Laporan tercatat di History bawah! (Fitur Salin Otomatis aktif setelah di-deploy ke GitHub)");
+            alert("Laporan otomatis tersimpan di tabel history!");
         });
     }
 
@@ -365,10 +411,9 @@
         setTimeout(() => { notif.style.display = 'none'; }, 3000);
     }
 
-    // FUNGSI ENGINE HISTORY (LOCAL STORAGE)
     function simpanKeHistory(logBaru) {
         let listRiwayat = JSON.parse(localStorage.getItem("riwayat_mkt")) || [];
-        listRiwayat.unshift(logBaru); // Tambah data baru di urutan paling atas
+        listRiwayat.unshift(logBaru);
         localStorage.setItem("riwayat_mkt", JSON.stringify(listRiwayat));
         tampilkanRiwayat();
     }
@@ -379,18 +424,14 @@
         tbody.innerHTML = "";
 
         if(listRiwayat.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada riwayat laporan yang dibuat.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada riwayat laporan.</td></tr>`;
             return;
         }
 
         listRiwayat.forEach(log => {
             let tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>
-                    <span class="timestamp">${log.waktu}</span><br>
-                    <strong>${log.toko}</strong><br>
-                    <small>${log.nama}</small>
-                </td>
+                <td><span class="timestamp">${log.waktu}</span><br><strong>${log.toko}</strong><br><small>${log.nama}</small></td>
                 <td style="text-align: center;">${log.items["PSM"] || '-'}</td>
                 <td style="text-align: center;">${log.items["PWP"] || '-'}</td>
                 <td style="text-align: center;">${log.items["Serba"] || '-'}</td>
@@ -401,12 +442,11 @@
     }
 
     function hapusRiwayat() {
-        if(confirm("Apakah Anda yakin ingin menghapus semua riwayat laporan?")) {
+        if(confirm("Hapus semua riwayat laporan?")) {
             localStorage.removeItem("riwayat_mkt");
             tampilkanRiwayat();
         }
     }
 </script>
-
 </body>
 </html>
